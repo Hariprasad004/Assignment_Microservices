@@ -3,17 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FrontEnd", "FrontEnd", "{0D8EB214-35E9-4A2A-A411-3CDE2FFD1285}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{D2CD2C1E-0651-4E97-A455-F6F9A9553F25}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{0D8EB214-35E9-4A2A-A411-3CDE2FFD1285}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{19E38D35-2EFF-471C-A8C2-9DA7307F7A66}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{8F0C0A86-5461-4085-AB22-6D55C46ED191}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.DataProcessAPI", "Services.DataProcessAPI\Services.DataProcessAPI.csproj", "{7669C3D1-7651-4519-81D5-05F64580379C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.AuthAPI", "Services.AuthAPI\Services.AuthAPI.csproj", "{97D125B0-0A42-46CC-92EA-07B5A415AD2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.AuthAPI", "Services.AuthAPI\Services.AuthAPI.csproj", "{97D125B0-0A42-46CC-92EA-07B5A415AD2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUI", "WebUI\WebUI.csproj", "{5E41A0F8-1836-4550-9B01-13AD564AA994}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +27,10 @@ Global
 		{97D125B0-0A42-46CC-92EA-07B5A415AD2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97D125B0-0A42-46CC-92EA-07B5A415AD2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97D125B0-0A42-46CC-92EA-07B5A415AD2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E41A0F8-1836-4550-9B01-13AD564AA994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E41A0F8-1836-4550-9B01-13AD564AA994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E41A0F8-1836-4550-9B01-13AD564AA994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E41A0F8-1836-4550-9B01-13AD564AA994}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7669C3D1-7651-4519-81D5-05F64580379C} = {19E38D35-2EFF-471C-A8C2-9DA7307F7A66}
 		{97D125B0-0A42-46CC-92EA-07B5A415AD2F} = {19E38D35-2EFF-471C-A8C2-9DA7307F7A66}
+		{5E41A0F8-1836-4550-9B01-13AD564AA994} = {0D8EB214-35E9-4A2A-A411-3CDE2FFD1285}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D8D6737F-9666-442F-9629-20DEC71887A0}
