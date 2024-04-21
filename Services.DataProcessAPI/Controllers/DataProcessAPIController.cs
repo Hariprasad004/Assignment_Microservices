@@ -7,6 +7,8 @@ using WebUI.Models;
 
 namespace Services.DataProcessAPI.Controllers
 {
+    [Route("api/dataprocess")]
+    [ApiController]
     public class DataProcessAPIController : Controller
     {
         private readonly AppDbContext _db;
@@ -27,8 +29,17 @@ namespace Services.DataProcessAPI.Controllers
         {
             try
             {
-                User obj = _db.Users.FirstOrDefault(u => u.Email == email);
-                _response.Result = _mapper.Map<UserDto>(obj);
+                User? obj = _db.Users.FirstOrDefault(u => u.Email == email);
+                if (obj == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.Result = null;
+                    _response.Message = "User does not exists";
+                }
+                else
+                {
+                    _response.Result = obj.Password;
+                }
             }
             catch (Exception ex)
             {
@@ -39,10 +50,11 @@ namespace Services.DataProcessAPI.Controllers
         }
 
         [HttpPost("Register")]
-        public ResponseDto Register([FromBody]UserDto userdto)
+        public ResponseDto Register(UserDto userdto)
         {
             try
             {
+                if(ModelState.IsValid) { 
                 User user = _db.Users.FirstOrDefault(u => u.Email == userdto.Email);
                 if (user != null)
                 {
@@ -59,7 +71,7 @@ namespace Services.DataProcessAPI.Controllers
                     {
 
                         string fileName = user.ID + Path.GetExtension(userdto.Image.FileName);
-                        string filePath = @"wwwroot\UserImages\" + fileName;
+                        string filePath = @"wwwroot\Images\" + fileName;
 
                         //I have added the if condition to remove the any image with same name if that exist in the folder by any change
                         var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
@@ -75,7 +87,7 @@ namespace Services.DataProcessAPI.Controllers
                             userdto.Image.CopyTo(fileStream);
                         }
                         var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
-                        user.ImageUrl = baseUrl + "/UserImages/" + fileName;
+                        user.ImageUrl = baseUrl + "/Images/" + fileName;
                         user.ImageLocalPath = filePath;
                     }
                     else
@@ -85,6 +97,12 @@ namespace Services.DataProcessAPI.Controllers
                     _db.Users.Update(user);
                     _db.SaveChanges();
                     _response.Result = _mapper.Map<UserDto>(user);
+                }
+                }
+                else
+                {
+                    _response.IsSuccess = false;
+                    _response.Message = ErrMsg;
                 }
             }
             catch (Exception ex)

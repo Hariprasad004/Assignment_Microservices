@@ -7,21 +7,21 @@ using static WebUI.Utility.SD;
 
 namespace WebUI.Service
 {
-	public class BaseService : IBaseService
+	public class AuthService : IAuthService
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		//private readonly ITokenProvider _tokenProvider;
-		public BaseService(IHttpClientFactory httpClientFactory) //, ITokenProvider tokenProvider
+		public AuthService(IHttpClientFactory httpClientFactory) //, ITokenProvider tokenProvider
 		{
 			_httpClientFactory = httpClientFactory;
 			//_tokenProvider = tokenProvider;
 		}
 
-		public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
+		public async Task<ResponseDto?> SendAsync(RequestDto requestDto)
 		{
 			try
 			{
-				HttpClient client = _httpClientFactory.CreateClient("MangoAPI");
+				HttpClient client = _httpClientFactory.CreateClient("WebAPI");
 				HttpRequestMessage message = new();
 				if (requestDto.ContentType == ContentType.MultipartFormData)
 				{
@@ -69,10 +69,6 @@ namespace WebUI.Service
 						message.Content = new StringContent(JsonConvert.SerializeObject(requestDto.Data), Encoding.UTF8, "application/json");
 					}
 				}
-
-
-
-
 
 				HttpResponseMessage? apiResponse = null;
 

@@ -1,3 +1,5 @@
+using WebUI.Service.IService;
+using WebUI.Service;
 using WebUI.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 SD.AuthAPI = builder.Configuration["ServiceUrls:AuthAPI"];
+builder.Services.AddHttpClient<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

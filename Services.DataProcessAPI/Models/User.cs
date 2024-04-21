@@ -4,9 +4,9 @@ namespace Services.DataProcessAPI.Models
 {
 	public class User
 	{
-		[Key]
-		public string ID { get; set; }
-		[Required]
+        [Key]
+        public int ID { get; set; }
+        [Required]
 		public string Email { get; set; }
 		[Required]
 		public string Name { get; set; }

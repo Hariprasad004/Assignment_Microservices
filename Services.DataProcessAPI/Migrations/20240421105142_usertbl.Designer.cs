@@ -12,8 +12,8 @@ using Services.DataProcessAPI.Data;
 namespace Services.DataProcessAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240419110554_addUserTbl")]
-    partial class addUserTbl
+    [Migration("20240421105142_usertbl")]
+    partial class usertbl
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,8 +27,11 @@ namespace Services.DataProcessAPI.Migrations
 
             modelBuilder.Entity("Services.DataProcessAPI.Models.User", b =>
                 {
-                    b.Property<string>("ID")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
@@ -37,8 +40,10 @@ namespace Services.DataProcessAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageLocalPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
