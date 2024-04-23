@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
+using Services.AuthAPI.Models.Dtos;
 using System.Net;
 using System.Text;
-using WebUI.Models;
 using WebUI.Service.IService;
 using static WebUI.Utility.SD;
 
 namespace WebUI.Service
 {
-	public class AuthService : IAuthService
+    public class AuthService : IAuthService
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
 		//private readonly ITokenProvider _tokenProvider;

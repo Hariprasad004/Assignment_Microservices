@@ -3,7 +3,8 @@
 	public class SD
 	{
 		public static string AuthAPI {  get; set; }
-		public enum ApiType
+        public const string TokenCookie = "JWTToken";
+        public enum ApiType
 		{
 			GET,
 			POST,

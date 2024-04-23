@@ -2,10 +2,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using WebUI.Models;
-using WebUI.Service;
 using WebUI.Service.IService;
 using WebUI.Utility;
 using static WebUI.Utility.SD;
@@ -15,10 +14,12 @@ namespace WebUI.Controllers
     public class HomeController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ITokenProvider _tokenProvider;
 
-        public HomeController(IAuthService authService)
+        public HomeController(IAuthService authService, ITokenProvider tokenProvider)
         {
             _authService = authService;
+            _tokenProvider = tokenProvider;
         }
 
         public IActionResult Index()
@@ -85,7 +86,7 @@ namespace WebUI.Controllers
                         JsonConvert.DeserializeObject<AuthResponseDto>(Convert.ToString(responseDto.Result));
 
                     await SignInUser(loginResponseDto);
-                    //_tokenProvider.SetToken(loginResponseDto.Token);
+                    _tokenProvider.SetToken(loginResponseDto.Token);
                     return RedirectToAction("LoginSuccessful", "Home");
                 }
                 else
@@ -107,7 +108,7 @@ namespace WebUI.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
-            //_tokenProvider.ClearToken();
+            _tokenProvider.ClearToken();
             return RedirectToAction("Index", "Home");
         }
 
@@ -118,28 +119,23 @@ namespace WebUI.Controllers
         }
         private async Task SignInUser(AuthResponseDto model)
         {
-            //var handler = new JwtSecurityTokenHandler();
+            var handler = new JwtSecurityTokenHandler();
 
-            //var jwt = handler.ReadJwtToken(model.Token);
+            var jwt = handler.ReadJwtToken(model.Token);
 
-            //var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-            //identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email,
-            //    jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
-            //identity.AddClaim(new Claim(JwtRegisteredClaimNames.Sub,
-            //    jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Sub).Value));
-            //identity.AddClaim(new Claim(JwtRegisteredClaimNames.Name,
-            //    jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Name).Value));
+            var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Sub,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Sub).Value));
+            identity.AddClaim(new Claim(JwtRegisteredClaimNames.Name,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Name).Value));
 
+            identity.AddClaim(new Claim(ClaimTypes.Name,
+                jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
 
-            //identity.AddClaim(new Claim(ClaimTypes.Name,
-            //    jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
-            //identity.AddClaim(new Claim(ClaimTypes.Role,
-            //    jwt.Claims.FirstOrDefault(u => u.Type == "role").Value));
-
-
-
-            //var principal = new ClaimsPrincipal(identity);
-            //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
     }
 }

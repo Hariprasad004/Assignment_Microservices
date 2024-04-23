@@ -1,8 +1,8 @@
-﻿using WebUI.Models;
+﻿using Services.AuthAPI.Models.Dtos;
 
 namespace WebUI.Service.IService
 {
-	public interface IAuthService
+    public interface IAuthService
 	{
 		Task<ResponseDto?> SendAsync(RequestDto requestDto);
 	}

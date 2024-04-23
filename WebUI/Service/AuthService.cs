@@ -10,14 +10,15 @@ namespace WebUI.Service
 	public class AuthService : IAuthService
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		//private readonly ITokenProvider _tokenProvider;
-		public AuthService(IHttpClientFactory httpClientFactory) //, ITokenProvider tokenProvider
-		{
+        private readonly ITokenProvider _tokenProvider;
+		public AuthService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider)
+        {
 			_httpClientFactory = httpClientFactory;
-			//_tokenProvider = tokenProvider;
-		}
+			_tokenProvider = tokenProvider;
 
-		public async Task<ResponseDto?> SendAsync(RequestDto requestDto)
+        }
+
+		public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
 		{
 			try
 			{
@@ -31,14 +32,16 @@ namespace WebUI.Service
 				{
 					message.Headers.Add("Accept", "application/json");
 				}
-				//token
-				//if (withBearer)
-				//{
-				//	var token = _tokenProvider.GetToken();
-				//	message.Headers.Add("Authorization", $"Bearer {token}");
-				//}
 
-				message.RequestUri = new Uri(requestDto.Url);
+                //token - while making requests after logging in
+                if (withBearer)
+                {
+                    var token = _tokenProvider.GetToken();
+                    message.Headers.Add("Authorization", $"Bearer {token}");
+                }
+
+
+                message.RequestUri = new Uri(requestDto.Url);
 
 				if (requestDto.ContentType == ContentType.MultipartFormData)
 				{

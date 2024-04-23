@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Services.DataProcessAPI.Data;
 using Services.DataProcessAPI.Models;
+using System.Text;
 using WebUI.Models;
 
 namespace Services.DataProcessAPI.Controllers
@@ -38,7 +40,8 @@ namespace Services.DataProcessAPI.Controllers
                 }
                 else
                 {
-                    _response.Result = obj.Password;
+                    UserDto userdto = _mapper.Map<UserDto>(obj);
+                    _response.Result = JsonConvert.SerializeObject(userdto);
                 }
             }
             catch (Exception ex)
@@ -96,7 +99,7 @@ namespace Services.DataProcessAPI.Controllers
                     }
                     _db.Users.Update(user);
                     _db.SaveChanges();
-                    _response.Result = _mapper.Map<UserDto>(user);
+                        _response.Result = JsonConvert.SerializeObject(_mapper.Map<UserDto>(user)); //, Encoding.UTF8, "application/json");
                 }
                 }
                 else

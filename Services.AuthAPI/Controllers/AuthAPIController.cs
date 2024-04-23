@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Services.AuthAPI.Models.Dtos;
+using Services.AuthAPI.Service.IService;
 using System.Text;
-using WebUI.Models;
 using WebUI.Service.IService;
 using WebUI.Utility;
 
@@ -11,10 +13,12 @@ namespace Services.AuthAPI.Controllers
     public class AuthAPIController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public AuthAPIController(IAuthService authService)
+        public AuthAPIController(IAuthService authService, IJwtTokenGenerator jwtTokenGenerator)
         {
             _authService = authService;
+            _jwtTokenGenerator = jwtTokenGenerator;
         }
 
         [HttpPost("Register")]
@@ -38,9 +42,7 @@ namespace Services.AuthAPI.Controllers
                 {
                     if (response.IsSuccess)
                     {
-                        //Token
-
-                        return Ok(response);
+                        return Ok(JsonConvert.SerializeObject(response));
 
                     }
                     else
@@ -77,17 +79,18 @@ namespace Services.AuthAPI.Controllers
                 {
                     if (response.IsSuccess)
                     {
-                        string pwd = (string)response.Result;
+                        RegRequestDto userdto = JsonConvert.DeserializeObject<RegRequestDto>(Convert.ToString(response.Result)); 
 
-                        if(model.Password == ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(pwd)))
+                        if (model.Password == ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(userdto.Password)))
                         {
                             //Token
-                            response.Result = new AuthResponseDto()
+                            response = new ResponseDto()
                             {
-                                Token = ""
+                                Result = new AuthResponseDto()
+                                {
+                                    Token= _jwtTokenGenerator.GenerateToken(userdto)
+                                }
                             };
-                           
-
                             return Ok(response);
                         }
                         response.IsSuccess = false;
