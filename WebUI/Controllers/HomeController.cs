@@ -82,32 +82,32 @@ namespace WebUI.Controllers
             if (ModelState.IsValid)
             {
                 ResponseDto responseDto = await _authService.SendAsync(new RequestDto()
-            {
-                ApiType = SD.ApiType.POST,
-                Data = obj,
-                Url = SD.AuthAPI + "/api/auth/Login"
-            });
-            if (responseDto != null)
-            {
-                if (responseDto.IsSuccess)
                 {
-                    AuthResponseDto loginResponseDto =
-                        JsonConvert.DeserializeObject<AuthResponseDto>(Convert.ToString(responseDto.Result));
+                    ApiType = SD.ApiType.POST,
+                    Data = obj,
+                    Url = SD.AuthAPI + "/api/auth/Login"
+                });
+                if (responseDto != null)
+                {
+                    if (responseDto.IsSuccess)
+                    {
+                        AuthResponseDto loginResponseDto =
+                            JsonConvert.DeserializeObject<AuthResponseDto>(Convert.ToString(responseDto.Result));
 
-                    await SignInUser(loginResponseDto);
-                    _tokenProvider.SetToken(loginResponseDto.Token);
-                    return RedirectToAction("LoginSuccessful", "Home");
+                        await SignInUser(loginResponseDto);
+                        _tokenProvider.SetToken(loginResponseDto.Token);
+                        return RedirectToAction("LoginSuccessful", "Home");
+                    }
+                    else
+                    {
+                        TempData["error"] = responseDto.Message;
+                        return View(obj);
+                    }
                 }
                 else
                 {
-                    TempData["error"] = responseDto.Message;
-                    return View(obj);
+                    return RedirectToAction("Error");
                 }
-            }
-            else
-            {
-                return RedirectToAction("Error");
-            }
             }
             else
             {

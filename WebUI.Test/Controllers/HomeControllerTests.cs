@@ -18,6 +18,11 @@ using AutoFixture;
 using System.IO.Abstractions.TestingHelpers;
 using AutoFixture.AutoMoq;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
+using static WebUI.Utility.SD;
+using WebUI.Utility;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using FluentAssertions;
 
 namespace WebUI.Test.Controllers
 {
@@ -29,6 +34,8 @@ namespace WebUI.Test.Controllers
             _fixture = new Fixture();
             _fixture.Customize(new AutoMoqCustomization());
         }
+
+        //Register
         [Fact]
         public async Task Register_ReturnsView_WhenModelStateIsInvalid()
         {
@@ -53,21 +60,26 @@ namespace WebUI.Test.Controllers
             var authServiceMock = new Mock<IAuthService>();
             var tokenProviderMock = new Mock<ITokenProvider>();
 
-            var request = _fixture.Create<RequestDto>();
-            authServiceMock.Setup(x => x.SendAsync(request, true)).
-                ReturnsAsync(new ResponseDto() { 
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            authServiceMock.Setup(x => x.SendAsync(It.IsAny<RequestDto>(), It.IsAny<bool>())).
+                ReturnsAsync(new ResponseDto()
+                {
                     IsSuccess = true,
                     Result = null,
                     Message = "Success"
                 });
-            var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object);
 
-            // Act
+            var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object)
+            {
+                TempData = tempData //mocking tempdata
+            };
             var mockFormFile = new Mock<IFormFile>();
             var RegDto = _fixture.Build<RegRequestDto>()
             .With(x=> x.Image, mockFormFile.Object)
             .Create();
 
+            // Act
             var result = await controller.Register(RegDto);
 
             // Assert
@@ -75,22 +87,111 @@ namespace WebUI.Test.Controllers
             Assert.Equal("Login", redirectToActionResult.ActionName);
         }
 
+        [Fact]
+        public async Task Register_ReturnsViewWithError_WhenRegistrationFails()
+        {
+            // Arrange
+            var authServiceMock = new Mock<IAuthService>();
+            var tokenProviderMock = new Mock<ITokenProvider>();
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            authServiceMock.Setup(x => x.SendAsync(It.IsAny<RequestDto>(), It.IsAny<bool>())).
+                ReturnsAsync(new ResponseDto()
+                {
+                    IsSuccess = false,
+                    Message = "Registration failed"
+                });
+            var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object)
+            {
+                TempData=tempData
+            };
+            var mockFormFile = new Mock<IFormFile>();
+            var RegDto = _fixture.Build<RegRequestDto>()
+            .With(x => x.Image, mockFormFile.Object)
+            .Create();
+
+            // Act
+            var result = await controller.Register(RegDto) as ViewResult;
+
+            // Assert
+            //hre cr viewname matching reqd'
+            Assert.Equal("Registration failed", controller.TempData["error"]);
+        }
+
+        //Login
+        [Fact]
+        public async Task Login_ReturnsView_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            var authServiceMock = new Mock<IAuthService>();
+            var tokenProviderMock = new Mock<ITokenProvider>();
+            var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object);
+            controller.ModelState.AddModelError("Error", "ModelState is invalid");
+
+            // Act
+            var result = await controller.Login(new LoginRequestDto());
+
+            // Assert
+            var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("Error", redirectToActionResult.ActionName);
+        }
+        [Fact]
+        public async Task Login_RedirectsToLoginSucc_WhenLoginSuccessful()
+        {
+            // Arrange
+            var authServiceMock = new Mock<IAuthService>();
+            var tokenProviderMock = new Mock<ITokenProvider>();
+
+            authServiceMock.Setup(x => x.SendAsync(It.IsAny<RequestDto>(), It.IsAny<bool>())).
+                ReturnsAsync(new ResponseDto()
+                {
+                    IsSuccess = true,
+                    Result = null,
+                    Message = "Success"
+                });
+
+            var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object);
+
+            // Act
+            var result = await controller.Login(new LoginRequestDto();
+
+            // Assert
+            var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
+            Assert.Equal("LoginSuccessful", redirectToActionResult.ActionName);
+
+        }
+
+        [Fact]
+        public async Task Login_ReturnsViewWithError_WhenloginFails()
+        {
+            // Arrange
+            var authServiceMock = new Mock<IAuthService>();
+            var tokenProviderMock = new Mock<ITokenProvider>();
+
+            var httpContext = new DefaultHttpContext();
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
+            authServiceMock.Setup(x => x.SendAsync(It.IsAny<RequestDto>(), It.IsAny<bool>())).
+                ReturnsAsync(new ResponseDto()
+                {
+                    IsSuccess = false,
+                    Message = "Login failed"
+                });
+            var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object)
+            {
+                TempData = tempData
+            };
+            
+
+            // Act
+            var result = await controller.Login(new LoginRequestDto()) as ViewResult;
+
+            // Assert
+            //hre cr viewname matching reqd'
+            Assert.Equal("Login failed", controller.TempData["error"]);
+        }
+
+
     }
-    //[Fact]
-    //public async Task Register_ReturnsViewWithError_WhenRegistrationFails()
-    //{
-    //    // Arrange
-    //    var authServiceMock = new Mock<IAuthService>();
-    //    authServiceMock.Setup(auth => auth.SendAsync(It.IsAny<ResponseDto>())).ReturnsAsync(new ResponseDto { IsSuccess = false, Message = "Registration failed" });
-    //    var tokenProviderMock = new Mock<IAuthService>();
-    //    var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object);
 
-    //    // Act
-    //    var result = await controller.Register(new RegRequestDto());
-
-    //    // Assert
-    //    var viewResult = Assert.IsType<ViewResult>(result);
-    //    Assert.Equal("Register", viewResult.ViewName);
-    //    Assert.Equal("Registration failed", controller.TempData["error"]);
-    //}
 }
