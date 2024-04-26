@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Services.AuthAPI.Models;
 using Services.AuthAPI.Models.Dtos;
 using Services.AuthAPI.Service.IService;
 using System.Text;
@@ -14,11 +15,13 @@ namespace Services.AuthAPI.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        private readonly IPassWordHash _passWordHash;
 
-        public AuthAPIController(IAuthService authService, IJwtTokenGenerator jwtTokenGenerator)
+        public AuthAPIController(IAuthService authService, IJwtTokenGenerator jwtTokenGenerator, IPassWordHash passWordHash)
         {
             _authService = authService;
             _jwtTokenGenerator = jwtTokenGenerator;
+            _passWordHash = passWordHash;
         }
 
         [HttpPost("Register")]
@@ -29,8 +32,8 @@ namespace Services.AuthAPI.Controllers
                 if(ModelState.IsValid)
                 {
 
-                //Encrypting the password
-                model.Password = Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(model.Password));
+                    //Encrypting the password
+                    model.Password = _passWordHash.GetHashedPassword(model.Password); //Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(model.Password));
                 ResponseDto response = await _authService.SendAsync(new RequestDto()
                 {
                     ApiType = SD.ApiType.POST,
@@ -81,7 +84,7 @@ namespace Services.AuthAPI.Controllers
                     {
                         RegRequestDto userdto = JsonConvert.DeserializeObject<RegRequestDto>(Convert.ToString(response.Result)); 
 
-                        if (model.Password == ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(userdto.Password)))
+                        if (_passWordHash.VerifyPassword(model.Password, userdto.Password))
                         {
                             //Token
                             response = new ResponseDto()

@@ -15,6 +15,8 @@ namespace WebUI.Models
 		[Required]
         public DateTime DateOfBirth { get; set; }
         public string? ImageUrl { get; set; }
+        //[MaxFileSize(1)]
+        //[AllowedExtensions(new string[] { ".jpg", ".png" })]
         public IFormFile? Image { get; set; }
     }
 }

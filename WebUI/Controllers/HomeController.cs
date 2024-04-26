@@ -35,25 +35,32 @@ namespace WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegRequestDto obj)
         {
-            ResponseDto result = await _authService.SendAsync(new RequestDto()
+            if (ModelState.IsValid)
             {
-                ApiType = SD.ApiType.POST,
-                Data = obj,
-                Url = SD.AuthAPI + "/api/auth/Register",
-                ContentType= ContentType.MultipartFormData
-            });
-
-            if (result != null)
-            {
-                if (result.IsSuccess)
+                ResponseDto result = await _authService.SendAsync(new RequestDto()
                 {
-                    TempData["success"] = "Registration Successful";
-                    return RedirectToAction(nameof(Login));
+                    ApiType = SD.ApiType.POST,
+                    Data = obj,
+                    Url = SD.AuthAPI + "/api/auth/Register",
+                    ContentType = ContentType.MultipartFormData
+                });
+
+                if (result != null)
+                {
+                    if (result.IsSuccess)
+                    {
+                        TempData["success"] = "Registration Successful";
+                        return RedirectToAction(nameof(Login));
+                    }
+                    else
+                    {
+                        TempData["error"] = result.Message;
+                        return View(obj);
+                    }
                 }
                 else
                 {
-                    TempData["error"] = result.Message;
-                    return View(obj);
+                    return RedirectToAction("Error");
                 }
             }
             else
@@ -72,7 +79,9 @@ namespace WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequestDto obj)
         {
-            ResponseDto responseDto = await _authService.SendAsync(new RequestDto()
+            if (ModelState.IsValid)
+            {
+                ResponseDto responseDto = await _authService.SendAsync(new RequestDto()
             {
                 ApiType = SD.ApiType.POST,
                 Data = obj,
@@ -94,6 +103,11 @@ namespace WebUI.Controllers
                     TempData["error"] = responseDto.Message;
                     return View(obj);
                 }
+            }
+            else
+            {
+                return RedirectToAction("Error");
+            }
             }
             else
             {
