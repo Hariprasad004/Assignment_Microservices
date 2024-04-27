@@ -23,6 +23,7 @@ using WebUI.Utility;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using FluentAssertions;
+using System.Runtime.CompilerServices;
 
 namespace WebUI.Test.Controllers
 {
@@ -147,18 +148,21 @@ namespace WebUI.Test.Controllers
                 ReturnsAsync(new ResponseDto()
                 {
                     IsSuccess = true,
-                    Result = null,
                     Message = "Success"
                 });
+
+            authServiceMock.Setup(x => x.SignInUser(It.IsAny<AuthResponseDto>()));
+            tokenProviderMock.Setup(x => x.SetToken(It.IsAny<string>()));
 
             var controller = new HomeController(authServiceMock.Object, tokenProviderMock.Object);
 
             // Act
-            var result = await controller.Login(new LoginRequestDto();
+            var result = await controller.Login(new LoginRequestDto());
 
             // Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("LoginSuccessful", redirectToActionResult.ActionName);
+            Assert.Equal("Home", redirectToActionResult.ControllerName);
 
         }
 
