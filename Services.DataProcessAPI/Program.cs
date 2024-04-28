@@ -31,7 +31,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("System", LogEventLevel.Warning)
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
-        sinkOptions: new MSSqlServerSinkOptions { TableName = "Logs", AutoCreateSqlTable = true }, // Customize table name if needed
+        sinkOptions: new MSSqlServerSinkOptions { AutoCreateSqlDatabase = true, TableName = "Logs", AutoCreateSqlTable = true}, // Customize table name if needed
         restrictedToMinimumLevel: LogEventLevel.Information
     )
     .CreateLogger();
@@ -53,5 +53,20 @@ app.UseStaticFiles();
 app.UseAuthorization();
 
 app.MapControllers();
+ApplyMigration();
 
 app.Run();
+
+
+void ApplyMigration()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var _db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        if (_db.Database.GetPendingMigrations().Count() > 0)
+        {
+            _db.Database.Migrate();
+        }
+    }
+}
