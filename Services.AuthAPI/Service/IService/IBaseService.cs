@@ -2,7 +2,7 @@
 
 namespace WebUI.Service.IService
 {
-    public interface IAuthService
+    public interface IBaseService
 	{
 		Task<ResponseDto?> SendAsync(RequestDto requestDto);
 	}

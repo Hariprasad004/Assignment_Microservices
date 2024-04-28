@@ -2,7 +2,7 @@
 
 namespace WebUI.Models
 {
-	public class RegRequestDto
+	public class RegisterRequestDto
 	{
 		[Required]
 		public string Email { get; set; }

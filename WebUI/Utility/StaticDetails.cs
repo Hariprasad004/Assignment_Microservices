@@ -1,6 +1,6 @@
 ﻿namespace WebUI.Utility
 {
-	public class SD
+	public class StaticDetails
 	{
 		public static string AuthAPI {  get; set; }
         public const string TokenCookie = "JWTToken";

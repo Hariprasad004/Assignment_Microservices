@@ -1,6 +1,6 @@
 ﻿namespace WebUI.Utility
 {
-	public class SD
+	public class StaticDetails
 	{
 		public static string DataProcessAPI {  get; set; }
 		public enum ApiType

@@ -4,6 +4,6 @@ namespace Services.AuthAPI.Service.IService
 {
     public interface IJwtTokenGenerator
     {
-        string GenerateToken(RegRequestDto userDto);
+        string GenerateToken(RegisterRequestDto userDto);
     }
 }

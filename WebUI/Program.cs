@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-SD.AuthAPI = builder.Configuration["ServiceUrls:AuthAPI"];
+StaticDetails.AuthAPI = builder.Configuration["ServiceUrls:AuthAPI"];
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -16,6 +16,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddHttpClient<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenProvider, TokenProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IHttpHandler, HttpHandler>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

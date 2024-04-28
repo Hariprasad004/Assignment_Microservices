@@ -1,13 +1,10 @@
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using WebUI.Models;
 using WebUI.Service.IService;
 using WebUI.Utility;
-using static WebUI.Utility.SD;
+using static WebUI.Utility.StaticDetails;
 
 namespace WebUI.Controllers
 {
@@ -33,15 +30,15 @@ namespace WebUI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegRequestDto obj)
+        public async Task<IActionResult> Register(RegisterRequestDto obj)
         {
             if (ModelState.IsValid)
             {
                 ResponseDto result = await _authService.SendAsync(new RequestDto()
                 {
-                    ApiType = SD.ApiType.POST,
+                    ApiType = StaticDetails.ApiType.POST,
                     Data = obj,
-                    Url = SD.AuthAPI + "/api/auth/Register",
+                    Url = StaticDetails.AuthAPI + "/api/auth/Register",
                     ContentType = ContentType.MultipartFormData
                 });
 
@@ -83,9 +80,9 @@ namespace WebUI.Controllers
             {
                 ResponseDto responseDto = await _authService.SendAsync(new RequestDto()
                 {
-                    ApiType = SD.ApiType.POST,
+                    ApiType = StaticDetails.ApiType.POST,
                     Data = obj,
-                    Url = SD.AuthAPI + "/api/auth/Login"
+                    Url = StaticDetails.AuthAPI + "/api/auth/Login"
                 });
                 if (responseDto != null)
                 {
@@ -131,25 +128,5 @@ namespace WebUI.Controllers
         {
             return View();
         }
-        //public async Task SignInUser(AuthResponseDto model)
-        //{
-        //    var handler = new JwtSecurityTokenHandler();
-
-        //    var jwt = handler.ReadJwtToken(model.Token);
-
-        //    var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
-        //    identity.AddClaim(new Claim(JwtRegisteredClaimNames.Email,
-        //        jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
-        //    identity.AddClaim(new Claim(JwtRegisteredClaimNames.Sub,
-        //        jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Sub).Value));
-        //    identity.AddClaim(new Claim(JwtRegisteredClaimNames.Name,
-        //        jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Name).Value));
-
-        //    identity.AddClaim(new Claim(ClaimTypes.Name,
-        //        jwt.Claims.FirstOrDefault(u => u.Type == JwtRegisteredClaimNames.Email).Value));
-
-        //    var principal = new ClaimsPrincipal(identity);
-        //    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-        //}
     }
 }

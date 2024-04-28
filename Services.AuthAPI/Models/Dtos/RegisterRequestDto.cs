@@ -2,7 +2,7 @@
 
 namespace Services.AuthAPI.Models.Dtos
 {
-    public class RegRequestDto
+    public class RegisterRequestDto
     {
         [Required]
         public string Email { get; set; }

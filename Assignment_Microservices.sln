@@ -17,11 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{00382DB5-3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{5947BDE3-80D8-4328-B9AC-03FD99F65B98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.DataProcessAPI.Test", "Services.DataProcessAPI.Test\Services.DataProcessAPI.Test.csproj", "{CDFF73E9-1E42-4FC5-BD36-4BF2AB4A32F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.DataProcessAPI.Test", "Services.DataProcessAPI.Test\Services.DataProcessAPI.Test.csproj", "{CDFF73E9-1E42-4FC5-BD36-4BF2AB4A32F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services.AuthAPI.Test", "Services.AuthAPI.Test\Services.AuthAPI.Test.csproj", "{8282BC51-C17E-466C-B7F7-D8D67F5A16AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services.AuthAPI.Test", "Services.AuthAPI.Test\Services.AuthAPI.Test.csproj", "{8282BC51-C17E-466C-B7F7-D8D67F5A16AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebUI.Test", "WebUI.Test\WebUI.Test.csproj", "{EAB85AB0-FA87-40C1-BF32-CC83BC9E038A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebUI.Test", "WebUI.Test\WebUI.Test.csproj", "{EAB85AB0-FA87-40C1-BF32-CC83BC9E038A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

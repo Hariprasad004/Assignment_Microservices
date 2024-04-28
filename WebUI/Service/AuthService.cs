@@ -3,36 +3,33 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using WebUI.Models;
 using WebUI.Service.IService;
-using static WebUI.Utility.SD;
+using static WebUI.Utility.StaticDetails;
 
 namespace WebUI.Service
 {
 	public class AuthService : IAuthService
 	{
-		private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITokenProvider _tokenProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpHandler _httpClient;
 
-        //public AuthService(IHttpContextAccessor httpContextAccessor)
-        //{
-        //    _httpContextAccessor = httpContextAccessor;
-        //}
-        public AuthService(IHttpClientFactory httpClientFactory, ITokenProvider tokenProvider, IHttpContextAccessor httpContextAccessor)
+
+        public AuthService( ITokenProvider tokenProvider, IHttpContextAccessor httpContextAccessor, IHttpHandler httpClient)
         {
-			_httpClientFactory = httpClientFactory;
 			_tokenProvider = tokenProvider;
             _httpContextAccessor = httpContextAccessor;
+            _httpClient = httpClient;
         }
 
 		public async Task<ResponseDto?> SendAsync(RequestDto requestDto, bool withBearer = true)
 		{
 			try
 			{
-				HttpClient client = _httpClientFactory.CreateClient("WebAPI");
 				HttpRequestMessage message = new();
 				if (requestDto.ContentType == ContentType.MultipartFormData)
 				{
@@ -101,7 +98,7 @@ namespace WebUI.Service
 						break;
 				}
 
-				apiResponse = await client.SendAsync(message);
+				apiResponse = await _httpClient.client.SendAsync(message);
 
 				switch (apiResponse.StatusCode)
 				{

@@ -1,20 +1,19 @@
 ﻿using Newtonsoft.Json;
+using Serilog;
 using Services.AuthAPI.Models.Dtos;
 using System.Net;
 using System.Text;
 using WebUI.Service.IService;
-using static WebUI.Utility.SD;
+using static WebUI.Utility.StaticDetails;
 
 namespace WebUI.Service
 {
-    public class AuthService : IAuthService
+    public class BaseService : IBaseService
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		//private readonly ITokenProvider _tokenProvider;
-		public AuthService(IHttpClientFactory httpClientFactory) //, ITokenProvider tokenProvider
+		public BaseService(IHttpClientFactory httpClientFactory) 
 		{
 			_httpClientFactory = httpClientFactory;
-			//_tokenProvider = tokenProvider;
 		}
 
 		public async Task<ResponseDto?> SendAsync(RequestDto requestDto)
@@ -31,12 +30,6 @@ namespace WebUI.Service
 				{
 					message.Headers.Add("Accept", "application/json");
 				}
-				//token
-				//if (withBearer)
-				//{
-				//	var token = _tokenProvider.GetToken();
-				//	message.Headers.Add("Authorization", $"Bearer {token}");
-				//}
 
 				message.RequestUri = new Uri(requestDto.Url);
 
@@ -113,7 +106,8 @@ namespace WebUI.Service
 					Message = ex.Message.ToString(),
 					IsSuccess = false
 				};
-				return dto;
+                Log.Error(ex.InnerException, ex.Message);
+                return dto;
 			}
 		}
 	}

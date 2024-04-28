@@ -1,10 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Serilog;
 using Services.DataProcessAPI.Data;
 using Services.DataProcessAPI.Models;
-using System.Text;
 using WebUI.Models;
 
 namespace Services.DataProcessAPI.Controllers
@@ -27,7 +26,7 @@ namespace Services.DataProcessAPI.Controllers
 
         [HttpGet]
         [Route("{email}")]
-        public ResponseDto Get(string email)
+        public ResponseDto Get(string email) //Getting user name based on Email
         {
             try
             {
@@ -46,6 +45,7 @@ namespace Services.DataProcessAPI.Controllers
             }
             catch (Exception ex)
             {
+                Log.Error(ex.InnerException, ex.Message);
                 _response.IsSuccess = false;
                 _response.Message = ErrMsg;
             }
@@ -57,50 +57,52 @@ namespace Services.DataProcessAPI.Controllers
         {
             try
             {
-                if(ModelState.IsValid) { 
-                User user = _db.Users.FirstOrDefault(u => u.Email == userdto.Email);
-                if (user != null)
+                if (ModelState.IsValid)
                 {
-                    _response.IsSuccess = false;
-                    _response.Message = "Email id already exists";
-                }
-                else
-                {
-                     user = _mapper.Map<User>(userdto);
-                    _db.Users.Add(user);
-                    _db.SaveChanges();
-
-                    if (userdto.Image != null)
+                    User user = _db.Users.FirstOrDefault(u => u.Email == userdto.Email);
+                    if (user != null)
                     {
-
-                        string fileName = user.ID + Path.GetExtension(userdto.Image.FileName);
-                        string filePath = @"wwwroot\Images\" + fileName;
-
-                        //I have added the if condition to remove the any image with same name if that exist in the folder by any change
-                        var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
-                        FileInfo file = new FileInfo(directoryLocation);
-                        if (file.Exists)
-                        {
-                            file.Delete();
-                        }
-
-                        var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
-                        using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
-                        {
-                            userdto.Image.CopyTo(fileStream);
-                        }
-                        var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
-                        user.ImageUrl = baseUrl + "/Images/" + fileName;
-                        user.ImageLocalPath = filePath;
+                        _response.IsSuccess = false;
+                        _response.Message = "Email id already exists";
                     }
                     else
                     {
-                        user.ImageUrl = "https://placehold.co/600x400";
+                        user = _mapper.Map<User>(userdto);
+                        _db.Users.Add(user);
+                        _db.SaveChanges();
+
+                        if (userdto.Image != null)
+                        {
+
+                            string fileName = user.ID + Path.GetExtension(userdto.Image.FileName);
+                            string filePath = @"wwwroot\Images\" + fileName;
+
+                            //I have added the if condition to remove the any image with same name if that exist in the folder by any change
+                            var directoryLocation = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                            FileInfo file = new FileInfo(directoryLocation);
+                            if (file.Exists)
+                            {
+                                file.Delete();
+                            }
+
+                            var filePathDirectory = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+                            using (var fileStream = new FileStream(filePathDirectory, FileMode.Create))
+                            {
+                                userdto.Image.CopyTo(fileStream);
+                            }
+                            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}{HttpContext.Request.PathBase.Value}";
+                            user.ImageUrl = baseUrl + "/Images/" + fileName;
+                            user.ImageLocalPath = filePath;
+                        }
+                        else
+                        {
+                            user.ImageUrl = "https://placehold.co/600x400";
+                        }
+                        _db.Users.Update(user);
+                        _db.SaveChanges();
+                        _response.IsSuccess = true;
+                        _response.Result = JsonConvert.SerializeObject(_mapper.Map<UserDto>(user));
                     }
-                    _db.Users.Update(user);
-                    _db.SaveChanges();
-                        _response.Result = JsonConvert.SerializeObject(_mapper.Map<UserDto>(user)); //, Encoding.UTF8, "application/json");
-                }
                 }
                 else
                 {
@@ -112,6 +114,7 @@ namespace Services.DataProcessAPI.Controllers
             {
                 _response.IsSuccess = false;
                 _response.Message = ErrMsg;
+                Log.Error(ex.InnerException, ex.Message);
             }
             return _response;
         }

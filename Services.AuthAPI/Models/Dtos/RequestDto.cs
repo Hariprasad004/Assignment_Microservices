@@ -1,5 +1,5 @@
 ﻿using WebUI.Utility;
-using static WebUI.Utility.SD;
+using static WebUI.Utility.StaticDetails;
 
 namespace Services.AuthAPI.Models.Dtos
 {

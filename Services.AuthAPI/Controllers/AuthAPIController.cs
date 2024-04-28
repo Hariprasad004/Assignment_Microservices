@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Serilog;
 using Services.AuthAPI.Models;
 using Services.AuthAPI.Models.Dtos;
 using Services.AuthAPI.Service.IService;
-using System.Text;
 using WebUI.Service.IService;
 using WebUI.Utility;
 
@@ -13,11 +13,11 @@ namespace Services.AuthAPI.Controllers
     [ApiController]
     public class AuthAPIController : Controller
     {
-        private readonly IAuthService _authService;
+        private readonly IBaseService _authService;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IPassWordHash _passWordHash;
 
-        public AuthAPIController(IAuthService authService, IJwtTokenGenerator jwtTokenGenerator, IPassWordHash passWordHash)
+        public AuthAPIController(IBaseService authService, IJwtTokenGenerator jwtTokenGenerator, IPassWordHash passWordHash)
         {
             _authService = authService;
             _jwtTokenGenerator = jwtTokenGenerator;
@@ -25,45 +25,46 @@ namespace Services.AuthAPI.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegRequestDto model)
+        public async Task<IActionResult> Register(RegisterRequestDto model)
         {
             try
             {
-                if(ModelState.IsValid)
+                if (ModelState.IsValid)
                 {
 
                     //Encrypting the password
-                    model.Password = _passWordHash.GetHashedPassword(model.Password); //Convert.ToBase64String(ASCIIEncoding.ASCII.GetBytes(model.Password));
-                ResponseDto response = await _authService.SendAsync(new RequestDto()
-                {
-                    ApiType = SD.ApiType.POST,
-                    Data = model,
-                    Url = SD.DataProcessAPI + "/api/dataprocess/Register",
-                    ContentType = SD.ContentType.MultipartFormData
-                });
-                if (response != null)
-                {
-                    if (response.IsSuccess)
+                    model.Password = _passWordHash.GetHashedPassword(model.Password);
+                    ResponseDto response = await _authService.SendAsync(new RequestDto()
                     {
-                        return Ok(JsonConvert.SerializeObject(response));
-
+                        ApiType = StaticDetails.ApiType.POST,
+                        Data = model,
+                        Url = StaticDetails.DataProcessAPI + "/api/dataprocess/Register",
+                        ContentType = StaticDetails.ContentType.MultipartFormData
+                    });
+                    if (response != null)
+                    {
+                        if (response.IsSuccess)
+                        {
+                            return Ok(JsonConvert.SerializeObject(response));
+                        }
+                        else
+                        {
+                            return BadRequest(response);
+                        }
                     }
                     else
                     {
-                        return BadRequest(response);
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
                     }
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
-                }
                 }
                 else
                 {
                     return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
                 }
             }
-            catch {
+            catch(Exception ex)
+            {
+                Log.Error(ex.InnerException, ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
             }
         }
@@ -72,37 +73,49 @@ namespace Services.AuthAPI.Controllers
         {
             try
             {
-                ResponseDto response = await _authService.SendAsync(new RequestDto()
+                if (ModelState.IsValid)
                 {
-                    ApiType = SD.ApiType.GET,
-                    Data = null,
-                    Url = SD.DataProcessAPI + $"/api/dataprocess/{model.UserName}"
-                });
-                if (response != null)
-                {
-                    if (response.IsSuccess)
+                    ResponseDto response = await _authService.SendAsync(new RequestDto()
                     {
-                        RegRequestDto userdto = JsonConvert.DeserializeObject<RegRequestDto>(Convert.ToString(response.Result)); 
-
-                        if (_passWordHash.VerifyPassword(model.Password, userdto.Password))
+                        ApiType = StaticDetails.ApiType.GET,
+                        Data = null,
+                        Url = StaticDetails.DataProcessAPI + $"/api/dataprocess/{model.UserName}"
+                    });
+                    if (response != null)
+                    {
+                        if (response.IsSuccess)
                         {
-                            //Token
-                            response = new ResponseDto()
+                            RegisterRequestDto userdto = JsonConvert.DeserializeObject<RegisterRequestDto>(Convert.ToString(response.Result));
+                            string UserPwd = "";
+                            if(userdto != null)
                             {
-                                Result = new AuthResponseDto()
+                                UserPwd = userdto.Password;
+                            }
+
+                            if (_passWordHash.VerifyPassword(model.Password, UserPwd))
+                            {
+                                //Token
+                                response = new ResponseDto()
                                 {
-                                    Token= _jwtTokenGenerator.GenerateToken(userdto)
-                                }
-                            };
-                            return Ok(response);
+                                    Result = new AuthResponseDto()
+                                    {
+                                        Token = _jwtTokenGenerator.GenerateToken(userdto)
+                                    }
+                                };
+                                return Ok(response);
+                            }
+                            response.IsSuccess = false;
+                            response.Message = "Password is incorrect";
+                            return BadRequest(response);
                         }
-                        response.IsSuccess = false;
-                        response.Message = "Password is incorrect";
-                        return BadRequest(response);
+                        else
+                        {
+                            return BadRequest(response);
+                        }
                     }
                     else
                     {
-                        return BadRequest(response);
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
                     }
                 }
                 else
@@ -110,8 +123,9 @@ namespace Services.AuthAPI.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
                 }
             }
-            catch
+            catch(Exception ex)
             {
+                Log.Error(ex.InnerException, ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error occured");
             }
         }
