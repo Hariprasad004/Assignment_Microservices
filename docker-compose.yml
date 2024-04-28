@@ -1,0 +1,24 @@
+version: '3.4'
+
+services:
+  webui:
+    image: ${DOCKER_REGISTRY-}webui
+    build:
+      context: .
+      dockerfile: WebUI\Dockerfile
+
+  services.authapi:
+    image: ${DOCKER_REGISTRY-}servicesauthapi
+    build:
+      context: .
+      dockerfile: Services.AuthAPI/Dockerfile
+
+
+  services.dataprocessapi:
+    image: ${DOCKER_REGISTRY-}servicesdataprocessapi
+    build:
+      context: .
+      dockerfile: Services.DataProcessAPI/Dockerfile
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
